@@ -13,19 +13,45 @@ class PreviousOrderScreen extends StatefulWidget {
 }
 
 class _PreviousOrderScreenState extends State<PreviousOrderScreen> {
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     final orderProvider = Provider.of<Orders>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Previous Orders"),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              isLoading = true;
+              await orderProvider.fetchOrders(context);
+              setState(() {
+                isLoading = false;
+              });
+            },
+            icon: const Icon(
+              Icons.refresh,
+              size: 30,
+            ),
+          ),
+        ],
       ),
       drawer: MainDrawer(),
-      body: Center(
-        child: PreviousOrderCard(
-          order: orderProvider.previousOrders[1],
-        ),
-      ),
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              child: ListView.builder(
+                itemBuilder: (context, i) {
+                  return PreviousOrderCard(
+                    order: orderProvider.previousOrders[i],
+                  );
+                },
+                itemCount: orderProvider.previousOrders.length,
+              ),
+            ),
     );
   }
 }

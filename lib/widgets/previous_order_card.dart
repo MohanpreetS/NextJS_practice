@@ -17,6 +17,7 @@ class _PreviousOrderCardState extends State<PreviousOrderCard> {
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
     final size = mq.size;
+    bool isCurrent = widget.order["active"];
     DateTime dt = DateTime.parse(widget.order["placedTime"]);
     final String date = DateFormat("MMMM dd, yyyy").format(dt);
     final String time = DateFormat('hh:mm a').format(dt);
@@ -32,12 +33,12 @@ class _PreviousOrderCardState extends State<PreviousOrderCard> {
         );
       },
       child: Container(
-        height: 100,
+        height: 120,
         width: size.width * 0.95,
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 3),
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
         decoration: BoxDecoration(
-          color: Colors.grey.shade300,
+          color: isCurrent ? Colors.redAccent.shade100 : Colors.grey.shade300,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(width: 0.2),
           boxShadow: [

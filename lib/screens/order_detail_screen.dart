@@ -4,21 +4,28 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 import '../providers/dishes.dart';
+import '../providers/orders.dart';
 import '../models/dish_item.dart';
 
-class OrderDetailScreen extends StatelessWidget {
+class OrderDetailScreen extends StatefulWidget {
   final dynamic order;
   const OrderDetailScreen({Key? key, this.order}) : super(key: key);
 
+  @override
+  State<OrderDetailScreen> createState() => _OrderDetailScreenState();
+}
+
+class _OrderDetailScreenState extends State<OrderDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
     final dishProvider = Provider.of<Dishes>(context);
     final dishes = dishProvider.dishes;
+    final orderProvider = Provider.of<Orders>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("${order["customer"]} : ${order["id"]}"),
+        title: Text("${widget.order["customer"]} : ${widget.order["id"]}"),
       ),
       body: SizedBox(
         height: mq.size.height * 0.95,
@@ -34,6 +41,7 @@ class OrderDetailScreen extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
+                    if (widget.order["active"]) _buildDelivered(orderProvider),
                     ..._buildNameIdTotal(mq.size.width * 0.5),
                     ..._buildDateTime(mq.size.width * 0.5),
                     ..._buildAddress(mq.size.width * 0.5),
@@ -48,10 +56,44 @@ class OrderDetailScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildDelivered(orderProvider) {
+    return GestureDetector(
+      onTap: () async {
+        await orderProvider.orderDelivered(widget.order["id"], context);
+        setState(() {});
+        Navigator.pop(context);
+      },
+      child: Container(
+        height: 50,
+        width: 120,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.red,
+            boxShadow: const [
+              BoxShadow(
+                blurRadius: 2,
+                offset: Offset(2, 2),
+                color: Colors.black26,
+                spreadRadius: 2,
+              )
+            ]),
+        child: const Center(
+          child: Text(
+            "Delivered",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget heading(label) {
     return Text(
       label,
-      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
     );
   }
 
@@ -76,7 +118,7 @@ class OrderDetailScreen extends StatelessWidget {
 
   List<Widget> _buildOrderItems(dishes) {
     var dishList = [];
-    var items = order["items"];
+    var items = widget.order["items"];
     for (var item in items) {
       final myDishItem = dishes.firstWhere((d) => d.id == item["dish"]);
       dishList.add(orderLine(
@@ -93,7 +135,7 @@ class OrderDetailScreen extends StatelessWidget {
           Flexible(child: heading("Quantity"), flex: 2, fit: FlexFit.tight),
         ],
       ),
-      SizedBox(height: 5),
+      const SizedBox(height: 5),
       ...dishList,
     ];
   }
@@ -129,15 +171,15 @@ class OrderDetailScreen extends StatelessWidget {
 
   List<Widget> _buildNameIdTotal(width) {
     return [
-      _buildTitleValue("Username", order["customer"], width),
-      _buildTitleValue("Order Id", order["id"].toString(), width),
-      _buildTitleValue("Total", "\$${order["price"]}", width),
+      _buildTitleValue("Username", widget.order["customer"], width),
+      _buildTitleValue("Order Id", widget.order["id"].toString(), width),
+      _buildTitleValue("Total", "\$${widget.order["price"]}", width),
       const Divider(thickness: 1.5),
     ];
   }
 
   List<Widget> _buildDateTime(width) {
-    DateTime dt = DateTime.parse(order["placedTime"]);
+    DateTime dt = DateTime.parse(widget.order["placedTime"]);
     final String date = DateFormat("MMMM dd, yyyy").format(dt);
     final String time = DateFormat('hh:mm a').format(dt);
     return [
@@ -149,10 +191,10 @@ class OrderDetailScreen extends StatelessWidget {
 
   List<Widget> _buildAddress(width) {
     return [
-      _buildTitleValue("Address Line 1", order["address1"], width),
-      _buildTitleValue("Address Line 2", order["address2"], width),
-      _buildTitleValue("City", order["city"], width),
-      _buildTitleValue("Postal Code", order["postal"], width),
+      _buildTitleValue("Address Line 1", widget.order["address1"], width),
+      _buildTitleValue("Address Line 2", widget.order["address2"], width),
+      _buildTitleValue("City", widget.order["city"], width),
+      _buildTitleValue("Postal Code", widget.order["postal"], width),
       const Divider(thickness: 1.5),
     ];
   }

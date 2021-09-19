@@ -25,7 +25,7 @@ class Orders with ChangeNotifier {
   Future<void> fetchOrders(context) async {
     final auth = Provider.of<Auth>(context, listen: false);
     const orderUrl = 'https://rodhosapi.herokuapp.com/dishes/orders/';
-    var orderList;
+    dynamic orderList;
     try {
       final response = await http.get(
         Uri.parse(orderUrl),
@@ -51,6 +51,23 @@ class Orders with ChangeNotifier {
       }
     }
     notifyListeners();
-    print(_previousOrders[0].runtimeType);
+  }
+
+  Future<void> orderDelivered(orderId, context) async {
+    final url = "https://rodhosapi.herokuapp.com/dishes/orders/$orderId/";
+    final auth = Provider.of<Auth>(context, listen: false);
+
+    await http.patch(
+      Uri.parse(url),
+      body: json.encode({
+        "active": false,
+      }),
+      headers: {
+        "Authorization": "token ${auth.token}",
+        'Content-type': 'application/json',
+      },
+    );
+    await fetchOrders(context);
+    notifyListeners();
   }
 }

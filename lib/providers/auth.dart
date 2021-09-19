@@ -27,7 +27,7 @@ class Auth with ChangeNotifier {
   }
 
   Future<void> login(username, password, context) async {
-    const url = "https://rodhosapi.herokuapp.com/account/login/";
+    const url = "https://rodhosapi.herokuapp.com/account/staff_login/";
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -41,6 +41,10 @@ class Auth with ChangeNotifier {
           'Content-type': 'application/json',
         },
       );
+      if (response.statusCode == 403) {
+        throw HttpException(
+            "This is not a staff username, this app is only for staff members");
+      }
       //print(json.decode(response.body));
       final responseData = json.decode(response.body);
 
@@ -50,6 +54,7 @@ class Auth with ChangeNotifier {
       if (responseData['non_field_errors'] != null) {
         throw HttpException(responseData['non_field_errors']);
       }
+
       _token = responseData['token'];
       _username = username;
       //print("username set");
