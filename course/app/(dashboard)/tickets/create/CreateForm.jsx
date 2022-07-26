@@ -27,7 +27,6 @@ export default function CreateForm() {
       router.refresh()
       router.push('/tickets')
     }
-    
   }
 
   return (
