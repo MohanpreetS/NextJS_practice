@@ -1,5 +1,6 @@
 "use client"
 
+// components
 import AuthForm from "../AuthForm"
 
 export default function Login() {
@@ -9,7 +10,7 @@ export default function Login() {
 
     console.log(email, password)
   }
-
+[]
   return (
     <main>
       <h2 className="text-center">Login</h2>
