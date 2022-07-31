@@ -1,7 +1,7 @@
 // components
 import Navbar from '@/app/components/Navbar'
 
-export default function DashboardLayout({ children }) {
+export default async function DashboardLayout({ children }) {
   return (
     <>
       <Navbar />
